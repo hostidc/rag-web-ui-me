@@ -82,7 +82,12 @@ COPY frontend/package.json frontend/pnpm-lock.yaml ./
 RUN pnpm install --no-frozen-lockfile
 
 COPY frontend/ .
-RUN pnpm build
+
+# Build with verbose output
+RUN echo "Starting Next.js build..." && \
+    pnpm build 2>&1 | tee /tmp/build.log && \
+    echo "Build completed successfully" || \
+    (echo "Build failed! Last 50 lines of log:" && tail -n 50 /tmp/build.log && exit 1)
 
 # ==================== Final Stage ====================
 FROM base
