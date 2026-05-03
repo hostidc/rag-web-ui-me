@@ -26,9 +26,9 @@ RUN apt-get update && apt-get install -y \
     mysql-server \
     && rm -rf /var/lib/apt/lists/*
 
-# Install Python 3.11
-RUN add-apt-repository ppa:deadsnakes/ppa -y && \
-    apt-get update && apt-get install -y \
+# Install Python 3.11 (Ubuntu 22.04 official repository includes python3.11)
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
     python3.11 \
     python3.11-venv \
     python3.11-dev \
