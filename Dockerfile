@@ -77,17 +77,25 @@ FROM base AS frontend-builder
 
 WORKDIR /app/frontend
 
-# Copy frontend files
+# Copy package files first for better caching
 COPY frontend/package.json frontend/pnpm-lock.yaml ./
+
+# Install dependencies
 RUN pnpm install --no-frozen-lockfile
 
-COPY frontend/ .
+# Copy source code (this won't overwrite node_modules)
+COPY frontend/src ./src
+COPY frontend/public ./public
+COPY frontend/next.config.js ./next.config.js
+COPY frontend/tsconfig.json ./tsconfig.json
+COPY frontend/tailwind.config.ts ./tailwind.config.ts
+COPY frontend/postcss.config.js ./postcss.config.js
+COPY frontend/postcss.config.mjs ./postcss.config.mjs
+COPY frontend/eslint.config.mjs ./eslint.config.mjs
+COPY frontend/components.json ./components.json
 
-# Build with verbose output
-RUN echo "Starting Next.js build..." && \
-    pnpm build 2>&1 | tee /tmp/build.log && \
-    echo "Build completed successfully" || \
-    (echo "Build failed! Last 50 lines of log:" && tail -n 50 /tmp/build.log && exit 1)
+# Build Next.js application
+RUN pnpm build
 
 # ==================== Final Stage ====================
 FROM base
